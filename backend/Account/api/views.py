@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -44,3 +44,19 @@ class CookieTokenRefreshView(APIView):
             return Response({"access":acess_token})
         except Exception:
             raise InvalidToken("Invalid refresh token")
+        
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        u = request.user
+        return Response({
+            'id': u.id,
+            'username': u.username,
+            'email':u.email
+        })
+        
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"detail": "Logged out"})
+        response.delete_cookie
+        return response
