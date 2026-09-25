@@ -40,3 +40,5 @@ class EmailVerificationToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     is_used = models.BooleanField(default=False)
+    
+8

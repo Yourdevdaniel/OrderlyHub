@@ -7,6 +7,8 @@ from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework.response import Response
+from ..models import *
+from .providers import PROVIDERS
 # Create your views here.
 
 class RegisterView(APIView):
@@ -14,7 +16,16 @@ class RegisterView(APIView):
     def post(self, request):
         ser = RegisterSerializer(data=request.data) #recieve the data and validate using serializer 
         ser.is_valid(raise_exception=True)
+
         user = ser.save() #saving on the db
+        token_obj = EmailVerificationToken.objects.create(user=user)
+        send_verification_email(user.email, str(token_obj.token))
+        
+        return Response(
+            {"message": "Registered. Please verify email", "verification_token": str(token_obj.token)},
+            status=201
+        )
+        
         
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -52,7 +63,9 @@ class MeView(APIView):
         return Response({
             'id': u.id,
             'username': u.username,
-            'email':u.email
+            'email':u.email,
+            'email_verified': u.email_verified,
+            'providers': list(u.social_accounts.values_list('provider', flat=True))
         })
         
 class LogoutView(APIView):
@@ -60,3 +73,5 @@ class LogoutView(APIView):
         response = Response({"detail": "Logged out"})
         response.delete_cookie
         return response
+    
+    

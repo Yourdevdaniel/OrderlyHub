@@ -6,5 +6,6 @@ urlpatterns = [
     path("/api/auth/login/", LoginView.as_view(), name='login'),
     path("/api/auth/token/refresh/", TokenRefreshView.as_view(), name='TokenRefresh'),
     path("/api/auth/me/", MeView.as_view(), name='MeView'),
-    path("/api/auth/logout/", LogoutView.as_view(), name="Logout")
+    path("/api/auth/logout/", LogoutView.as_view(), name="Logout"),
+    path("/api/auth/social/<str:provider>/", name="Social_Providers")
 ]
